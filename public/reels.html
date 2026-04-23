@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reels — Paul Harrison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14;--surface:#0d1525;--blue:#2563eb;--blue-glow:#3b82f6;
+      --text:#e8edf5;--muted:#6b7fa3;--border:rgba(37,99,235,0.18);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;overflow-x:hidden;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5;}
+    body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(37,99,235,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.25rem 6vw;background:rgba(8,12,20,.75);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--text);letter-spacing:-.02em;text-decoration:none;}
+    .nav-logo span{color:var(--blue-glow);}
+    .nav-links{display:flex;gap:2rem;list-style:none;}
+    .nav-links a{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-links a.active{color:var(--blue-glow);}
+
+    main{position:relative;z-index:1;padding:8rem 6vw 4rem;max-width:720px;margin:0 auto;}
+
+    .page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:3rem;flex-wrap:wrap;gap:1.5rem;}
+    .header-left .eyebrow{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--blue-glow);margin-bottom:.6rem;}
+    .header-left h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.04em;line-height:.95;}
+    .header-left p{margin-top:.75rem;font-size:.8rem;color:var(--muted);max-width:400px;line-height:1.7;}
+
+    .add-btn{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.06em;padding:.65rem 1.25rem;border-radius:4px;border:1px solid var(--blue);background:var(--blue);color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .add-btn:hover{background:var(--blue-glow);box-shadow:0 0 20px rgba(59,130,246,.35);}
+
+    .feed{display:flex;flex-direction:column;gap:2rem;}
+
+    .reel-card{border:1px solid var(--border);border-radius:12px;background:rgba(13,21,37,.7);overflow:hidden;transition:border-color .25s;animation:fadeUp .4s ease forwards;opacity:0;}
+    .reel-card:nth-child(1){animation-delay:0s;}
+    .reel-card:nth-child(2){animation-delay:.07s;}
+    .reel-card:nth-child(3){animation-delay:.14s;}
+    .reel-card:nth-child(4){animation-delay:.21s;}
+    .reel-card:nth-child(5){animation-delay:.28s;}
+    .reel-card:hover{border-color:rgba(37,99,235,.4);}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+    .reel-video{position:relative;width:100%;padding-top:56.25%;background:#000;}
+    .reel-video video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000;}
+
+    .reel-info{padding:1.25rem 1.5rem 1.5rem;}
+    .reel-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+    .reel-date{font-size:.65rem;color:var(--muted);}
+    .reel-actions{display:flex;gap:.5rem;}
+    .reel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:.4rem;line-height:1.3;}
+    .reel-caption{font-size:.78rem;color:var(--muted);line-height:1.7;}
+
+    .action-btn{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);background:none;border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:.25rem .65rem;cursor:pointer;transition:all .2s;}
+    .action-btn:hover{color:#f87171;border-color:rgba(248,113,113,.25);}
+
+    .empty{text-align:center;padding:4rem 1rem;color:var(--muted);font-size:.8rem;border:1px dashed var(--border);border-radius:8px;}
+    .empty-icon{font-size:2rem;margin-bottom:.75rem;opacity:.5;}
+
+    .loading-msg{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:.78rem;}
+    .spin{display:inline-block;animation:spin 1.2s linear infinite;color:var(--blue-glow);font-size:.9rem;margin-bottom:.5rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .modal-wrap{position:fixed;inset:0;z-index:300;background:rgba(5,9,18,.9);display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(4px);}
+    .modal-wrap.open{opacity:1;pointer-events:all;}
+    .modal{background:#0d1525;border:1px solid rgba(37,99,235,.25);border-radius:14px;padding:2rem;max-width:460px;width:100%;position:relative;transform:translateY(12px);transition:transform .2s;}
+    .modal-wrap.open .modal{transform:translateY(0);}
+    .modal h2{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:1.5rem;color:var(--text);}
+
+    .fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+    .fg label{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+    .fg input,.fg textarea{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;padding:.65rem .9rem;color:var(--text);font-family:'DM Mono',monospace;font-size:.8rem;outline:none;transition:border-color .2s;}
+    .fg input:focus,.fg textarea:focus{border-color:var(--blue);}
+    .fg textarea{resize:vertical;min-height:70px;}
+
+    .upload-area{border:2px dashed var(--border);border-radius:8px;padding:2rem 1rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .upload-area:hover,.upload-area.drag{border-color:var(--blue);background:rgba(37,99,235,.04);}
+    .upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .upload-icon{font-size:1.8rem;margin-bottom:.5rem;opacity:.6;}
+    .upload-label{font-size:.75rem;color:var(--muted);line-height:1.6;}
+    .upload-label span{color:var(--blue-glow);}
+    .upload-preview{margin-top:.75rem;font-size:.7rem;color:var(--blue-glow);display:none;}
+
+    .progress-wrap{margin-top:.75rem;display:none;}
+    .progress-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--blue);border-radius:2px;width:0%;transition:width .15s;}
+    .progress-label{font-size:.65rem;color:var(--muted);margin-top:.35rem;}
+
+    .modal-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.25rem;}
+    .mbtn{font-family:'DM Mono',monospace;font-size:.72rem;padding:.55rem 1.1rem;border-radius:4px;cursor:pointer;transition:all .2s;}
+    .mbtn-outline{background:transparent;color:var(--muted);border:1px solid var(--border);}
+    .mbtn-outline:hover{color:var(--text);}
+    .mbtn-primary{background:var(--blue);color:#fff;border:1px solid var(--blue);}
+    .mbtn-primary:hover{background:var(--blue-glow);}
+    .mbtn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+    .modal-close{position:absolute;top:.9rem;right:.9rem;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;transition:all .2s;}
+    .modal-close:hover{color:var(--text);background:rgba(255,255,255,.1);}
+
+    .error-msg{font-size:.7rem;color:#f87171;margin-top:.35rem;display:none;}
+    .error-msg.show{display:block;}
+
+    footer{border-top:1px solid var(--border);padding:1.5rem 6vw;display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--muted);position:relative;z-index:1;}
+    footer a{color:var(--blue-glow);text-decoration:none;}
+    footer a:hover{text-decoration:underline;}
+
+    @media(max-width:768px){.nav-links{display:none;}.page-header{flex-direction:column;align-items:flex-start;}}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">PH<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#skills">Skills</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="notice.html">Notice Board</a></li>
+      <li><a href="reels.html" class="active">Reels</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="login.html">Sign In</a></li>
+      <li><a href="signup.html">Sign Up</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <div class="header-left">
+        <p class="eyebrow">// short clips</p>
+        <h1>Reels</h1>
+        <p>Behind the code, on the court, and everything in between.</p>
+      </div>
+      <button class="add-btn" id="uploadBtn" onclick="openModal()" style="display:none;">+ Upload Reel</button>
+    </div>
+    <div class="feed" id="feed"></div>
+  </main>
+
+  <!-- UPLOAD MODAL -->
+  <div class="modal-wrap" id="modalWrap">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h2>Upload reel</h2>
+      <div class="fg">
+        <label>Title</label>
+        <input type="text" id="inp-title" placeholder="Give it a title..." />
+      </div>
+      <div class="fg">
+        <label>Caption</label>
+        <textarea id="inp-caption" placeholder="Say something about it..."></textarea>
+      </div>
+      <div class="fg">
+        <label>Video</label>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="inp-file" accept="video/*" onchange="onFileSelect()" />
+          <div class="upload-icon">🎬</div>
+          <div class="upload-label"><span>Choose a video</span> or drag it here<br>MP4, MOV, WebM — max 200MB</div>
+          <div class="upload-preview" id="filePreview"></div>
+        </div>
+        <div class="error-msg" id="fileError">Please select a video file.</div>
+      </div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">Uploading...</div>
+      </div>
+      <div class="modal-actions">
+        <button class="mbtn mbtn-outline" onclick="closeModal()">Cancel</button>
+        <button class="mbtn mbtn-primary" id="submitBtn" onclick="uploadReel()">Upload →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">← Back to Portfolio</a>
+    <span>© 2025 Paul Harrison</span>
+  </footer>
+
+  <script>
+    const API = 'https://selfintro-lg6q.onrender.com';
+    const token = localStorage.getItem('ph_token');
+
+    if (token) document.getElementById('uploadBtn').style.display = 'block';
+
+    // Nav: swap Sign In/Sign Up for username + logout
+    (function() {
+      const t = localStorage.getItem('ph_token');
+      if (!t) return;
+      try {
+        const payload = JSON.parse(atob(t.split('.')[1]));
+        const nav = document.querySelector('.nav-links');
+        if (!nav) return;
+        nav.querySelectorAll('a').forEach(a => {
+          if (a.href.includes('login.html') || a.href.includes('signup.html')) a.parentElement.remove();
+        });
+        nav.insertAdjacentHTML('beforeend', `
+          <li><span style="color:var(--blue-glow);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;">${payload.username}</span></li>
+          <li><a href="#" onclick="localStorage.removeItem('ph_token');window.location.replace('index.html');" style="color:#f87171;">Logout</a></li>
+        `);
+      } catch(e) {}
+    })();
+
+    let reels = [];
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function render() {
+      const feed = document.getElementById('feed');
+      if (!reels.length) {
+        feed.innerHTML = `<div class="empty"><div class="empty-icon">🎬</div>No reels yet — upload the first one.</div>`;
+        return;
+      }
+      feed.innerHTML = reels.map(r => `
+        <div class="reel-card">
+          <div class="reel-video">
+            <video controls preload="metadata">
+              <source src="${API}/uploads/${r.filename}" type="${r.mimetype || 'video/mp4'}">
+            </video>
+          </div>
+          <div class="reel-info">
+            <div class="reel-meta">
+              <span class="reel-date">${formatDate(r.date)}</span>
+              ${token ? `<div class="reel-actions"><button class="action-btn" onclick="deleteReel(${r.id})">Remove</button></div>` : ''}
+            </div>
+            <div class="reel-title">${escapeHtml(r.title)}</div>
+            ${r.caption ? `<div class="reel-caption">${escapeHtml(r.caption)}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+    }
+
+    async function deleteReel(id) {
+      if (!confirm('Remove this reel?')) return;
+      await fetch(`${API}/api/reels/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      loadReels();
+    }
+
+    function openModal() { document.getElementById('modalWrap').classList.add('open'); }
+    function closeModal() {
+      document.getElementById('modalWrap').classList.remove('open');
+      document.getElementById('inp-title').value = '';
+      document.getElementById('inp-caption').value = '';
+      document.getElementById('inp-file').value = '';
+      document.getElementById('filePreview').style.display = 'none';
+      document.getElementById('progressWrap').style.display = 'none';
+      document.getElementById('progressFill').style.width = '0%';
+      document.getElementById('fileError').classList.remove('show');
+      document.getElementById('submitBtn').disabled = false;
+    }
+
+    document.getElementById('modalWrap').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault(); uploadArea.classList.remove('drag');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('video/')) {
+        document.getElementById('inp-file').files = e.dataTransfer.files;
+        onFileSelect();
+      }
+    });
+
+    function onFileSelect() {
+      const file = document.getElementById('inp-file').files[0];
+      if (!file) return;
+      const preview = document.getElementById('filePreview');
+      preview.textContent = `✓ ${file.name} (${(file.size/1024/1024).toFixed(1)} MB)`;
+      preview.style.display = 'block';
+      document.getElementById('fileError').classList.remove('show');
+    }
+
+    async function uploadReel() {
+      const title = document.getElementById('inp-title').value.trim();
+      const caption = document.getElementById('inp-caption').value.trim();
+      const file = document.getElementById('inp-file').files[0];
+      if (!title) { document.getElementById('inp-title').focus(); return; }
+      if (!file) { document.getElementById('fileError').classList.add('show'); return; }
+      if (file.size / 1024 / 1024 > 200) {
+        document.getElementById('fileError').textContent = 'File too large — max 200MB.';
+        document.getElementById('fileError').classList.add('show'); return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      const progressWrap = document.getElementById('progressWrap');
+      const progressFill = document.getElementById('progressFill');
+      const progressLabel = document.getElementById('progressLabel');
+
+      submitBtn.disabled = true;
+      progressWrap.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('caption', caption);
+      formData.append('video', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', e => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          progressFill.style.width = pct + '%';
+          progressLabel.textContent = `Uploading... ${pct}%`;
+        }
+      });
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200 || xhr.status === 201) {
+          progressLabel.textContent = 'Done!';
+          setTimeout(() => { closeModal(); loadReels(); }, 600);
+        } else {
+          progressLabel.textContent = 'Upload failed — please try again.';
+          submitBtn.disabled = false;
+        }
+      });
+      xhr.addEventListener('error', () => {
+        progressLabel.textContent = 'Network error — please try again.';
+        submitBtn.disabled = false;
+      });
+      xhr.open('POST', `${API}/api/reels`);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(formData);
+    }
+
+    async function loadReels() {
+      const feed = document.getElementById('feed');
+      feed.innerHTML = `<div class="loading-msg"><div class="spin">⟳</div><br>Loading reels...</div>`;
+      let attempts = 0;
+      while (attempts < 10) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 35000);
+          const res = await fetch(`${API}/api/reels`, { signal: controller.signal });
+          clearTimeout(timeout);
+          if (!res.ok) throw new Error();
+          reels = await res.json();
+          render(); return;
+        } catch(e) {
+          attempts++;
+          feed.innerHTML = `<div class="loading-msg"><div class="spin">⟳</div><br>Still waking up... (attempt ${attempts})</div>`;
+          await new Promise(r => setTimeout(r, 4000));
+        }
+      }
+      feed.innerHTML = '<div class="empty"><div class="empty-icon">⚠</div>Server unavailable — please refresh.</div>';
+    }
+
+    loadReels();
+  </script>
+</body>
+</html>

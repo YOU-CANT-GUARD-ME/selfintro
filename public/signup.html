@@ -224,14 +224,13 @@
         const res  = await fetch(`${API}/api/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, email, password: pass })
+          body: JSON.stringify({ username: user, password: pass })
         });
         const data = await res.json();
-        if (res.ok && data.token) {
-          localStorage.setItem('ph_token', data.token);
-          window.location.replace('notice.html');
+        if (res.ok && data.ok) {
+          window.location.replace('login.html');
         } else {
-          setError(data.message || 'Registration failed — please try again.');
+          setError(data.error || 'Registration failed — please try again.');
         }
       } catch { setError('Could not reach server — please try again.'); }
       btn.disabled = false; btn.classList.remove('loading');
